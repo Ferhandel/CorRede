@@ -1,6 +1,9 @@
-
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+
 
 namespace HelloWorld
 {
@@ -8,6 +11,8 @@ namespace HelloWorld
     {
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
         public static NetworkList<Color> colors = new NetworkList<Color>();
+
+        int colorCount;
 
         private void Start() {
         
@@ -23,6 +28,8 @@ namespace HelloWorld
             colors.Add(Color.red);
             colors.Add(Color.grey);
 
+            //StartCoroutine(ColorDrop());
+
         }
 
         public override void OnNetworkSpawn()
@@ -30,6 +37,7 @@ namespace HelloWorld
              if (IsOwner)
             {
                 Move();
+                //ColorDrop();
             }
         }
 
@@ -40,12 +48,14 @@ namespace HelloWorld
                 var randomPosition = GetRandomPositionOnPlane();
                 transform.position = randomPosition;
                 Position.Value = randomPosition;
+                
             }
             else
             {
                 SubmitPositionRequestServerRpc();
             }
         }
+
 
         [ServerRpc]
         void SubmitPositionRequestServerRpc(ServerRpcParams rpcParams = default)
@@ -59,21 +69,22 @@ namespace HelloWorld
         }
 
         [ServerRpc]
-
-        //Colores
         
-
-        void SubmitColorRequestServerRpc(ServerRpcParams repcParams = default){
-            
+       /* IEnumerator ColorDrop(ServerRpcParams rpcParams = default){
+            while(colorCount < 10){
+                int selectedColors = Random.Range(0, colors.Count);
+                GetComponent<MeshRenderer>(). material. color = colors[selectedColors];
+                colors.RemoveAt(selectedColors);
+                yield return new Color(Random.Range(0, colors.Count), colors.Count, Random.Range(0, colors.Count));
+                colorCount += 1; 
+            }
         }
-
-       
-
-
+        */
 
         void Update()
         {
             transform.position = Position.Value;
         }
+        
     }
 }
