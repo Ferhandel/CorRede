@@ -27,6 +27,8 @@ namespace HelloWorld
             if (GUILayout.Button("Host")) NetworkManager.Singleton.StartHost();
             if (GUILayout.Button("Client")) NetworkManager.Singleton.StartClient();
             if (GUILayout.Button("Server")) NetworkManager.Singleton.StartServer();
+            if (GUILayout.Button("Color")) NetworkManager.Singleton.StartServer();
+           
         }
 
         static void StatusLabels()
@@ -46,6 +48,16 @@ namespace HelloWorld
                 var playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
                 var player = playerObject.GetComponent<HelloWorldPlayer>();
                 player.Move();
+            }
+        }
+
+        static void SubmitRandomColor() 
+        {
+            if (GUILayout.Button(NetworkManager.Singleton.IsServer ? "Change Color" : "Request Color Change"))
+            {
+                var playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+                var player = playerObject.GetComponent<HelloWorldPlayer>();
+                player.SubmitColorRequestServerRpc();
             }
         }
     }
