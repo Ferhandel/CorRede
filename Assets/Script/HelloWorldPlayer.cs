@@ -34,7 +34,11 @@ namespace HelloWorld
             //checkeamos los avariableColors
             Debug.Log(avariableColors.Count);
             }
-           
+
+            if (IsOwner){
+                SubmitColorRequestServerRpc(true);
+            }
+            
             //StartCoroutine(ColorDrop());
         }
 
@@ -44,26 +48,19 @@ namespace HelloWorld
         }
         public override void OnNetworkSpawn()
         {
-             if (IsOwner)
+            if (IsOwner)
             {
                 Move();
                 //ColorDrop();
             }
+     
         }
         public void Move()
         {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                var randomPosition = GetRandomPositionOnPlane();
-                transform.position = randomPosition;
-                Position.Value = randomPosition;
-                
-            }
-            else
-            {
-                SubmitPositionRequestServerRpc();
-            }
+            SubmitPositionRequestServerRpc();
+    
         }
+
 
         [ServerRpc]
         void SubmitPositionRequestServerRpc(ServerRpcParams rpcParams = default)
@@ -76,20 +73,25 @@ namespace HelloWorld
             return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
         }
         [ServerRpc]      
-         public void SubmitColorRequestServerRpc(ServerRpcParams rpcParams = default){
+         public void SubmitColorRequestServerRpc(bool primeritaVez = false, ServerRpcParams rpcParams = default){
             //usamos oldColor para no terminar sin colores en la lista. 
             Color oldColor = colorPlayer.Value;
             Color newColor = avariableColors[Random.Range(0, avariableColors.Count)];
             //quitamos el color por defecto del player (que siempre es negro)
             avariableColors.Remove(newColor);
+            //Si star no es falso, añadimos el color por defecto (negro), que previamente habiamos quitado, de nuevo a la lista
+            if(!primeritaVez){
             //añadimos ese color a la lista avariableColors
             avariableColors.Add(oldColor);
+            }
             //newColor se guarda dentro de colorPlayer ( que es networkvariable, por lo tanto se expande al resto de objetos)
-            colorPlayer.Value = newColor;
+            colorPlayer.Value = newColor;        
+
+            
             Debug.Log(pretty(avariableColors));
         }
 
-        private string pretty(List<Color>l){
+        private string pretty(List<Color> l){
             string result = "";
             foreach (Color item in l){
                 result += item.ToString() + " ";
